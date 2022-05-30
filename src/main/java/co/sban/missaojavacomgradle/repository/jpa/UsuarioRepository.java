@@ -1,4 +1,4 @@
-package co.sban.missaojavacomgradle.repository;
+package co.sban.missaojavacomgradle.repository.jpa;
 
 import co.sban.missaojavacomgradle.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;

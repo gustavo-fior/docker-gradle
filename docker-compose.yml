@@ -2,12 +2,33 @@ version: "3.8"
 services:
   missao-java:
     container_name: crud-usuario
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
     image: gustavo-fior/missao-java-com-gradle:latest
     ports:
       - 8080:8080
     networks:
       - minha-brigde
+      - mongodb
+
+  mongodb:
+    image: mongo:5.0
+    container_name: mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - data_mongodb:/data/db
+    networks:
+      - mongodb
+    ports:
+      - 27017:27017
+    restart: unless-stopped
 
 networks:
   minha-brigde:
     driver: bridge
+  mongodb:
+
+volumes:
+  data_mongodb:

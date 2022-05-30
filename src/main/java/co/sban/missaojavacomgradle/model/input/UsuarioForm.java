@@ -1,7 +1,9 @@
 package co.sban.missaojavacomgradle.model.input;
 
 import co.sban.missaojavacomgradle.model.Usuario;
+import org.springframework.beans.BeanUtils;
 
+import java.beans.Beans;
 import java.time.LocalDate;
 
 public class UsuarioForm {

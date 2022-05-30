@@ -1,5 +1,17 @@
-
 spring:
+  application:
+    name: missaojavacomgradle
+  profiles:
+    active: ${SERVER_ENV}
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 20000
+  data:
+    mongodb:
+      authentication-database: admin
+      database: SBanco
+      uri: ${MONGODB_URI}
   datasource:
     url: jdbc:h2:mem:mydb
     username: sa
@@ -7,3 +19,14 @@ spring:
     driverClassName: org.h2.Driver
   jpa:
     spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+
+server:
+  port: 8080
+
+logging:
+  level:
+    web: ${LOG_LEVEL:debug}
+    org.mongodb: ${MONGODB_LOG_LEVEL:debug}
+    co.sban: ${LOG_LEVEL:debug}
+    org.springframework.web: ${SPRING_LOG_LEVEL:debug}
+    org.springframework.boot.autoconfigure.mongo.embedded: ${MONGODB_LOG_LEVEL:debug}

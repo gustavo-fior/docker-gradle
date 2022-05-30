@@ -13,6 +13,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuario")
@@ -30,7 +31,7 @@ public class UsuarioController {
 
         Optional<Usuario> usuario = usuarioService.getById(id);
 
-        if(usuario.isEmpty()) {
+        if (usuario.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -44,9 +45,9 @@ public class UsuarioController {
 
         List<UsuarioDTO> usuariosDTO = new ArrayList<>();
 
-        usuarios.forEach(usuario -> {
-            usuariosDTO.add(new UsuarioDTO(usuario));
-        });
+        usuariosDTO.addAll(usuarios.stream().map(usuario -> {
+            return new UsuarioDTO(usuario);
+        }).collect(Collectors.toList()));
 
         return ResponseEntity.ok(usuariosDTO);
     }
@@ -55,11 +56,9 @@ public class UsuarioController {
     public ResponseEntity<UsuarioDTO> create(@RequestBody UsuarioForm usuarioForm, UriComponentsBuilder URIBuilder) {
 
         Usuario usuario = usuarioForm.toUsuario();
-        usuarioService.save(usuario);
+        UsuarioDTO save = usuarioService.save(usuario);
 
-        URI uri = URIBuilder.path("/usuario/{id}").buildAndExpand(usuario.getId()).toUri();
-
-        return ResponseEntity.created(uri).body(new UsuarioDTO(usuario));
+        return ResponseEntity.ok(save);
     }
 
     @DeleteMapping("/{id}")
@@ -75,13 +74,18 @@ public class UsuarioController {
 
         Optional<Usuario> usuario = usuarioService.getById(id);
 
-        if(usuario.isEmpty()) {
+        if (usuario.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
 
-        usuarioService.update(usuario.get(), usuarioForm);
+        UsuarioDTO update = usuarioService.update(usuario.get(), usuarioForm);
 
-        return ResponseEntity.ok(new UsuarioDTO(usuario.get()));
+        return ResponseEntity.ok(update);
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<?> test() {
+        return ResponseEntity.ok("It's working!!!");
     }
 
 
