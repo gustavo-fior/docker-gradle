@@ -19,6 +19,26 @@ spring:
     driverClassName: org.h2.Driver
   jpa:
     spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+  kafka:
+    producer:
+      buffer-memory: 31457280
+      message-max-bytes: 31457280
+      max-request-size: 31457280
+      bootstrap-servers: broker1:9192
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        max:
+          request:
+            size: 31457280
+    consumer:
+      bootstrap-servers: broker1:9192
+      group-id: group-id-crud-usuario
+      auto-offset-reset: earliest
+      message-max-bytes: 31457280
+      max-partition-fetch-bytes: 31457280
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 server:
   port: 8080
@@ -30,3 +50,9 @@ logging:
     co.sban: ${LOG_LEVEL:debug}
     org.springframework.web: ${SPRING_LOG_LEVEL:debug}
     org.springframework.boot.autoconfigure.mongo.embedded: ${MONGODB_LOG_LEVEL:debug}
+
+crud:
+  kafka:
+    listen:
+      auto:
+        start: ${KAFKA_LISTEN_AUTO_START:true}

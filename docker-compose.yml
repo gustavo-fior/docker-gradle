@@ -10,6 +10,7 @@ services:
     networks:
       - minha-brigde
       - mongodb
+      - kafkabroker
 
   mongodb:
     image: mongo:5.0
@@ -25,10 +26,103 @@ services:
       - 27017:27017
     restart: unless-stopped
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.2.0
+    container_name: zookeeper
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+      - ZOOKEEPER_LOG4J_ROOT_LOGLEVEL=${ZOOKEEPER_LOG4J_ROOT_LOGLEVEL:-INFO}
+    restart: unless-stopped
+    networks:
+      - kafkabroker
+    volumes:
+      - data_zookeeper:/data
+      - datalog_zookeeper:/datalog
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "2"
+        max-size: "10m"
+
+  broker1:
+    image: confluentinc/cp-kafka:6.2.0
+    container_name: kafka
+    hostname: broker1
+    networks:
+      - kafkabroker
+    depends_on:
+      - zookeeper
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=CLIENT://broker1:9092,REPLICATION://broker1:9192
+      - KAFKA_ADVERTISED_LISTENERS=CLIENT://broker1:19092,REPLICATION://broker1:9192
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,REPLICATION:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=REPLICATION
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_ADVERTISED_HOST_NAME=broker1
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_MESSAGE_MAX_BYTES=31457280
+      - KAFKA_MAX_REQUEST_SIZE=31457280
+      - KAFKA_PRODUCER_MAX_REQUEST_SIZE=31457280
+      - CONNECT_PRODUCER_MAX_REQUEST_SIZE=31457280
+      - KAFKA_SOCKET_REQUEST_MAX_BYTES=31457280
+      - KAFKA_SOCKET_SEND_BUFFER_BYTES=31457280
+      - KAFKA_LOG4J_ROOT_LOGLEVEL=${KAFKA_LOG4J_ROOT_LOGLEVEL:-INFO}
+    volumes:
+      - data_broker1:/var/lib/kafka
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "2"
+        max-size: "10m"
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:3.27.0
+    container_name: kafdrop
+    networks:
+      - kafkabroker
+    restart: unless-stopped
+    environment:
+      KAFKA_BROKERCONNECT: broker1:9192
+      SERVER_SERVLET_CONTEXTPATH: /kafdrop/
+    depends_on:
+      - broker1
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "2"
+        max-size: "10m"
+
+
 networks:
   minha-brigde:
     driver: bridge
   mongodb:
+  kafkabroker:
 
 volumes:
   data_mongodb:
+  data_zookeeper:
+  datalog_zookeeper:
+  data_broker1:

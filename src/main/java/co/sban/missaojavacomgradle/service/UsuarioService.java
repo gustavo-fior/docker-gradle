@@ -4,10 +4,9 @@ import co.sban.missaojavacomgradle.model.LogData;
 import co.sban.missaojavacomgradle.model.Usuario;
 import co.sban.missaojavacomgradle.model.input.UsuarioForm;
 import co.sban.missaojavacomgradle.model.output.UsuarioDTO;
+import co.sban.missaojavacomgradle.publisher.UsuarioPublisher;
 import co.sban.missaojavacomgradle.repository.jpa.UsuarioRepository;
 import co.sban.missaojavacomgradle.repository.nosql.LogDataRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -23,10 +21,13 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final LogDataRepository logDataRepository;
 
+    private final UsuarioPublisher usuarioPublisher;
+
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository, LogDataRepository logDataRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, LogDataRepository logDataRepository, UsuarioPublisher usuarioPublisher) {
         this.usuarioRepository = usuarioRepository;
         this.logDataRepository = logDataRepository;
+        this.usuarioPublisher = usuarioPublisher;
     }
 
     public Optional<Usuario> getById(Long id) {
@@ -43,17 +44,13 @@ public class UsuarioService {
 
     public UsuarioDTO save(Usuario usuario) {
 
-        LogData logData = new LogData();
-        logData.setData(LocalDateTime.now());
-
         Usuario save = usuarioRepository.save(usuario);
 
-        CompletableFuture.runAsync(() -> {
-            logData.setData(usuario);
-            logDataRepository.save(logData).subscribe();
-        });
+        UsuarioDTO usuarioDTO = new UsuarioDTO(save);
 
-        return new UsuarioDTO(save);
+        usuarioPublisher.publisher(usuarioDTO);
+
+        return usuarioDTO;
     }
 
     public void deleteById(Long id) {
@@ -81,4 +78,16 @@ public class UsuarioService {
         return new UsuarioDTO(save);
 
     }
+
+    public void saveUsuarioLogThroughKafka(String mensagem) {
+
+        LogData logData = new LogData();
+        logData.setDate(LocalDateTime.now());
+        logData.setData(mensagem);
+
+        logDataRepository.save(logData).subscribe();
+
+    }
+
+
 }
