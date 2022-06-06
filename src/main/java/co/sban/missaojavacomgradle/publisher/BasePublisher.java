@@ -1,5 +1,6 @@
 package co.sban.missaojavacomgradle.publisher;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -16,7 +17,7 @@ public abstract class BasePublisher<T> {
     }
 
     // ??????
-    public abstract void publisher(T clazz);
+    public abstract void publisher(T clazz) throws JsonProcessingException;
 
     protected void send(final String message, final String topic) {
         ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(topic, UUID.randomUUID().toString(), message);

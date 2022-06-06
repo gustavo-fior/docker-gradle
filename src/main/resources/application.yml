@@ -13,12 +13,35 @@ spring:
       database: SBanco
       uri: ${MONGODB_URI}
   datasource:
-    url: jdbc:h2:mem:mydb
+    url: jdbc:h2:~/data/SBanco;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;SCHEMA=public
     username: sa
     password: password
     driverClassName: org.h2.Driver
   jpa:
     spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    jpa:
+      defer-datasource-initialization: true
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        globally_quoted_identifiers: true
+    hibernate:
+      ddl-auto: none
+
+  flyway:
+    enabled: ${FLY_WAY_DB_ENABLE:true}
+    url: jdbc:h2:~/data/SBanco;DB_CLOSE_DELAY=-1
+    user: sa
+    password: password
+    clean-disabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    encoding: UTF-8
+    outOfOrder: false
+    schemas: public
+    validate-on-migrate: true
+
   kafka:
     producer:
       buffer-memory: 31457280
@@ -42,6 +65,9 @@ spring:
 
 server:
   port: 8080
+
+h2-server:
+  port: 8081
 
 logging:
   level:

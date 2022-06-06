@@ -1,14 +1,25 @@
 package co.sban.missaojavacomgradle.model.output;
 
+import co.sban.missaojavacomgradle.config.LocalDateDeserializer;
+import co.sban.missaojavacomgradle.config.LocalDateSerializer;
 import co.sban.missaojavacomgradle.model.Usuario;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class UsuarioDTO {
+public class UsuarioDTO implements Serializable {
 
     private String nome;
     private String sobreNome;
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate dataNascimento;
+
     private String cpf;
     private String email;
 
@@ -58,5 +69,10 @@ public class UsuarioDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String toJsonString() throws JsonProcessingException {
+        ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        return objectWriter.writeValueAsString(this);
     }
 }

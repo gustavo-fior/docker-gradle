@@ -4,9 +4,10 @@ import co.sban.missaojavacomgradle.model.LogData;
 import co.sban.missaojavacomgradle.model.Usuario;
 import co.sban.missaojavacomgradle.model.input.UsuarioForm;
 import co.sban.missaojavacomgradle.model.output.UsuarioDTO;
-import co.sban.missaojavacomgradle.publisher.UsuarioPublisher;
+import co.sban.missaojavacomgradle.publisher.LogUsuarioPublisher;
 import co.sban.missaojavacomgradle.repository.jpa.UsuarioRepository;
 import co.sban.missaojavacomgradle.repository.nosql.LogDataRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +22,10 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final LogDataRepository logDataRepository;
 
-    private final UsuarioPublisher usuarioPublisher;
+    private final LogUsuarioPublisher usuarioPublisher;
 
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository, LogDataRepository logDataRepository, UsuarioPublisher usuarioPublisher) {
+    public UsuarioService(UsuarioRepository usuarioRepository, LogDataRepository logDataRepository, LogUsuarioPublisher usuarioPublisher) {
         this.usuarioRepository = usuarioRepository;
         this.logDataRepository = logDataRepository;
         this.usuarioPublisher = usuarioPublisher;
@@ -48,7 +49,11 @@ public class UsuarioService {
 
         UsuarioDTO usuarioDTO = new UsuarioDTO(save);
 
-        usuarioPublisher.publisher(usuarioDTO);
+        try {
+            usuarioPublisher.publisher(usuarioDTO);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
         return usuarioDTO;
     }
@@ -78,16 +83,5 @@ public class UsuarioService {
         return new UsuarioDTO(save);
 
     }
-
-    public void saveUsuarioLogThroughKafka(String mensagem) {
-
-        LogData logData = new LogData();
-        logData.setDate(LocalDateTime.now());
-        logData.setData(mensagem);
-
-        logDataRepository.save(logData).subscribe();
-
-    }
-
 
 }

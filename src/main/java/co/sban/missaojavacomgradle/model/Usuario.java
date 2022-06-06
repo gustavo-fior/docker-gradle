@@ -1,11 +1,16 @@
 package co.sban.missaojavacomgradle.model;
 
+import co.sban.missaojavacomgradle.config.LocalDateDeserializer;
+import co.sban.missaojavacomgradle.config.LocalDateSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "public")
 public class Usuario {
 
     @Id
@@ -13,6 +18,9 @@ public class Usuario {
     private Long id;
     private String nome;
     private String sobreNome;
+
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate dataNascimento;
     private String cpf;
     private String email;

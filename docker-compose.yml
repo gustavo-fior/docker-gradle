@@ -6,7 +6,7 @@ services:
       - MONGODB_URI=${MONGODB_URI}
     image: gustavo-fior/missao-java-com-gradle:latest
     ports:
-      - 8080:8080
+      - "8080:8080"
     networks:
       - minha-brigde
       - mongodb
@@ -23,7 +23,7 @@ services:
     networks:
       - mongodb
     ports:
-      - 27017:27017
+      - "27017:27017"
     restart: unless-stopped
 
   zookeeper:
@@ -63,7 +63,7 @@ services:
       - KAFKA_BROKER_ID=1
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_LISTENERS=CLIENT://broker1:9092,REPLICATION://broker1:9192
-      - KAFKA_ADVERTISED_LISTENERS=CLIENT://broker1:19092,REPLICATION://broker1:9192
+      - KAFKA_ADVERTISED_LISTENERS=CLIENT://broker1:9092,REPLICATION://broker1:9192
       - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,REPLICATION:PLAINTEXT
       - KAFKA_INTER_BROKER_LISTENER_NAME=REPLICATION
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
@@ -94,6 +94,8 @@ services:
   kafdrop:
     image: obsidiandynamics/kafdrop:3.27.0
     container_name: kafdrop
+    ports:
+      - "9000:9000"
     networks:
       - kafkabroker
     restart: unless-stopped

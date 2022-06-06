@@ -1,5 +1,9 @@
 package co.sban.missaojavacomgradle.model;
 
+import co.sban.missaojavacomgradle.config.LocalDateTimeDeserializer;
+import co.sban.missaojavacomgradle.config.LocalDateTimeSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Id;
@@ -12,6 +16,8 @@ public class LogData {
 
     @Id
     private String id;
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime date;
     private Object data;
 

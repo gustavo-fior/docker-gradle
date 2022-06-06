@@ -3,13 +3,14 @@ package co.sban.missaojavacomgradle.controller;
 import co.sban.missaojavacomgradle.model.Usuario;
 import co.sban.missaojavacomgradle.model.input.UsuarioForm;
 import co.sban.missaojavacomgradle.model.output.UsuarioDTO;
+import co.sban.missaojavacomgradle.publisher.LogUsuarioPublisher;
 import co.sban.missaojavacomgradle.service.UsuarioService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,9 +22,12 @@ public class UsuarioController {
 
     private final UsuarioService usuarioService;
 
+    private final LogUsuarioPublisher logUsuarioPublisher;
+
     @Autowired
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, LogUsuarioPublisher logUsuarioPublisher) {
         this.usuarioService = usuarioService;
+        this.logUsuarioPublisher = logUsuarioPublisher;
     }
 
     @GetMapping("/{id}")
